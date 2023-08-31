@@ -1,0 +1,35 @@
+import { UniqueEntityID } from '@/core/entities/unique-entity-id'
+import { Answer } from '@/domain/forum/enterprise/entities/answer'
+import { AnswersRepository } from '../repositories/answers-repository'
+
+interface AnswerQuestionUseCaseRequest {
+  instructorId: string
+  questionId: string
+  content: string
+}
+
+interface AnswerQuestionUseCaseResponse {
+  answer: Answer
+}
+
+export class AnswerQuestionUseCase {
+  constructor(private answersRepository: AnswersRepository) {}
+
+  async execute(
+    data: AnswerQuestionUseCaseRequest,
+  ): Promise<AnswerQuestionUseCaseResponse> {
+    const { instructorId, questionId, content } = data
+
+    const answer = Answer.create({
+      content,
+      authorId: new UniqueEntityID(instructorId),
+      questionId: new UniqueEntityID(questionId),
+    })
+
+    await this.answersRepository.create(answer)
+
+    return {
+      answer,
+    }
+  }
+}
